@@ -1,70 +1,46 @@
-# Discord Bot (discord.py starter)
+# joey-bot
 
-Add the bot to your server:
-https://discord.com/oauth2/authorize?client_id=1516042370439839784
+A friendly little Discord bot built with [discord.py](https://discordpy.readthedocs.io/)
+using slash commands. It brings games, randomizers, and fun API-powered toys to
+your server — no privileged intents required.
 
-A minimal Discord bot built with [discord.py](https://discordpy.readthedocs.io/),
-using **slash commands** (no privileged intents required to start).
+## ➕ Add it to your server
+
+**[Click here to invite joey-bot](https://discord.com/oauth2/authorize?client_id=1516042370439839784)**
+
+Once it's in, type `/` in any channel to see everything it can do, or run `/help`.
 
 ## Commands
 
+### 🎮 Fun
 | Command | What it does |
 |---------|--------------|
-| `/ping` | Replies with "Pong!" and the bot's latency |
-| `/echo <message>` | Repeats your message back |
+| `/8ball <question>` | Ask the magic 8-ball a yes/no question |
+| `/roll [dice]` | Roll dice in `NdM` format, e.g. `2d6` or `d20` |
+| `/coinflip` | Flip a coin |
+| `/choose <options>` | Pick one from a comma-separated list |
+| `/rps <choice>` | Play rock-paper-scissors against the bot |
+| `/ship <a> <b>` | Calculate the love compatibility of two people |
+| `/rate <thing>` | Get the bot's official rating of anything |
+| `/computa <command>` | Give the computa a command and it gets done |
 
-## Setup
+### 🌐 API-powered
+| Command | What it does |
+|---------|--------------|
+| `/joke` | A random joke |
+| `/dadjoke` | A random dad joke |
+| `/meme` | A random meme from Reddit |
+| `/cat` | A random cat picture |
+| `/dog` | A random dog picture |
 
-### 1. Create the bot application
+### ⚙️ General
+| Command | What it does |
+|---------|--------------|
+| `/ping` | Check if the bot is alive and see its latency |
+| `/echo <message>` | Repeat back what you say |
+| `/help` | List every command the bot has |
 
-1. Go to the [Discord Developer Portal](https://discord.com/developers/applications) → **New Application**.
-2. Open the **Bot** tab → **Reset Token** → copy the token.
-3. (Optional) Leave all **Privileged Gateway Intents** OFF — this starter only uses slash commands.
+## Running your own
 
-### 2. Invite the bot to your server
-
-In the portal: **OAuth2 → URL Generator**, select scopes:
-
-- `bot`
-- `applications.commands`
-
-Pick the permissions you need (for this starter, **Send Messages** is enough),
-then open the generated URL and add the bot to a server you manage.
-
-### 3. Install and configure locally
-
-```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
-cp .env.example .env             # then edit .env and paste your token
-```
-
-For development, set `DEV_GUILD_ID` in `.env` to your server's ID so commands
-appear instantly. (Enable Developer Mode in Discord → right-click your server →
-Copy Server ID.) Leave it blank to register commands globally.
-
-### 4. Run
-
-```bash
-python bot.py
-```
-
-You should see `Logged in as ...` in the console. Try `/ping` in your server.
-
-## Adding a command
-
-```python
-@client.tree.command(name="hello", description="Say hello.")
-async def hello(interaction: discord.Interaction) -> None:
-    await interaction.response.send_message(f"Hi {interaction.user.mention}!")
-```
-
-Restart the bot after adding or changing commands so they re-sync.
-
-## Notes
-
-- **Never commit `.env`** — it holds your token. It's already in `.gitignore`.
-- If you later read message text, run prefix commands, or track members, enable
-  the matching **intent** both in `bot.py` and in the Developer Portal.
+Want to host your own copy? See **[SETUP.md](SETUP.md)** for setup, configuration,
+and deployment instructions.
