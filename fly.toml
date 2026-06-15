@@ -1,0 +1,13 @@
+# Fly.io configuration for the Discord bot.
+# `fly launch` may rename the app and pick a closer region — that's fine.
+# This bot has NO web server, so there is intentionally no [http_service]
+# section. Without one, Fly keeps the machine running instead of idling it.
+
+app = "joey-discord-bot"
+primary_region = "den"
+
+[build]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

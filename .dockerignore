@@ -1,0 +1,12 @@
+# Never ship secrets — the token is set via `fly secrets`, not the image.
+.env
+
+# Local-only cruft that shouldn't go in the image.
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.git/
+.gitignore
+*.md
