@@ -1,13 +1,18 @@
-# Fly.io configuration for the Discord bot.
-# `fly launch` may rename the app and pick a closer region — that's fine.
-# This bot has NO web server, so there is intentionally no [http_service]
-# section. Without one, Fly keeps the machine running instead of idling it.
+# fly.toml app configuration file generated for joey-discord-bot on 2026-06-15T07:03:48-06:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "joey-discord-bot"
-primary_region = "den"
+app = 'joey-discord-bot'
+primary_region = 'dfw'
 
 [build]
 
+# NOTE: no [http_service] block on purpose. This bot has no web server, so it
+# never receives HTTP traffic. An http_service with auto_stop_machines would
+# make Fly shut the machine down for being "idle" — which would kill the bot.
+# Without it, Fly keeps the single machine running continuously.
+
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "256mb"
+  size = 'shared-cpu-1x'
+  memory = '256mb'
