@@ -1,5 +1,8 @@
 # Discord Bot (discord.py starter)
 
+Add the bot to your server:
+https://discord.com/oauth2/authorize?client_id=1516042370439839784
+
 A minimal Discord bot built with [discord.py](https://discordpy.readthedocs.io/),
 using **slash commands** (no privileged intents required to start).
 
