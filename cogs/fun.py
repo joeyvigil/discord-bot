@@ -19,6 +19,15 @@ RPS_CHOICES = ["rock", "paper", "scissors"]
 RPS_BEATS = {"rock": "scissors", "paper": "rock", "scissors": "paper"}
 RPS_EMOJI = {"rock": "🪨", "paper": "📄", "scissors": "✂️"}
 
+# Playful "booting up" lines the computa says before reporting success.
+COMPUTA_INTROS = [
+    "*beep boop* 🤖",
+    "*whirr... processing...* ⚙️",
+    "*computa is computing...* 💾",
+    "*loading... 0% ... 100%* 🖥️",
+    "*ENGAGING MEGA-PROCESSORS* ⚡",
+]
+
 # Caps to keep dice rolls sane and output short.
 MAX_DICE = 100
 MAX_SIDES = 1000
@@ -149,6 +158,21 @@ class Fun(commands.Cog):
         await interaction.response.send_message(
             f"💘 **{person1.display_name}** + **{person2.display_name}**\n"
             f"`{bar}` **{percent}%**\n{verdict}"
+        )
+
+    @app_commands.command(name="computa", description="Give the computa a command and it gets done.")
+    @app_commands.describe(command="What should the computa do?")
+    async def computa(self, interaction: discord.Interaction, command: str) -> None:
+        task = command.strip()
+        if not task:
+            await interaction.response.send_message(
+                "❌ The computa needs a command to run.", ephemeral=True
+            )
+            return
+        intro = random.choice(COMPUTA_INTROS)
+        # The computa always succeeds — it simply reports the task as done.
+        await interaction.response.send_message(
+            f"{intro}\n✅ **Done!** *{task}* — complete."
         )
 
     @app_commands.command(name="rate", description="Get the bot's official rating of anything.")
