@@ -183,6 +183,44 @@ class TicTacToeButton(discord.ui.Button):
         await interaction.response.edit_message(content=content, view=view)
 
 
+class EmbedModal(discord.ui.Modal, title="Build an embed"):
+    embed_title = discord.ui.TextInput(label="Title", max_length=256, required=False)
+    description = discord.ui.TextInput(
+        label="Description",
+        style=discord.TextStyle.paragraph,
+        max_length=4000,
+        required=False,
+    )
+    color = discord.ui.TextInput(
+        label="Color (hex, optional)",
+        placeholder="#5865F2",
+        max_length=7,
+        required=False,
+    )
+
+    async def on_submit(self, interaction: discord.Interaction) -> None:
+        if not self.embed_title.value and not self.description.value:
+            await interaction.response.send_message(
+                "❌ Give the embed a title or description.", ephemeral=True
+            )
+            return
+        embed = discord.Embed(
+            title=self.embed_title.value or None,
+            description=self.description.value or None,
+        )
+        raw = self.color.value.strip().lstrip("#")
+        if raw:
+            try:
+                embed.color = discord.Color(int(raw, 16))
+            except ValueError:
+                await interaction.response.send_message(
+                    "❌ That color isn't a valid hex code.", ephemeral=True
+                )
+                return
+        embed.set_footer(text=f"Embed by {interaction.user.display_name}")
+        await interaction.response.send_message(embed=embed)
+
+
 class Interactive(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -265,6 +303,10 @@ class Interactive(commands.Cog):
             return
         view = TicTacToe(interaction.user, opponent)
         await interaction.response.send_message(content=view.status(), view=view)
+
+    @app_commands.command(name="embed", description="Build a custom embed via a form.")
+    async def embed(self, interaction: discord.Interaction) -> None:
+        await interaction.response.send_modal(EmbedModal())
 
 
 async def setup(bot: commands.Bot) -> None:
