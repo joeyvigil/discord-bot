@@ -10,6 +10,14 @@ API-powered toys to your server — no privileged intents required.
 
 Once it's in, type `/` in any channel to see everything it can do, or run `/help`.
 
+## 📸 Screenshots
+
+<!-- Drop the image files in docs/screenshots/ with these names, or update the paths. -->
+
+| `/help` overview | `/pokemon` lookup | A comic command |
+|:---:|:---:|:---:|
+| ![/help command](docs/screenshots/help.png) | ![/pokemon command](docs/screenshots/pokemon.png) | ![/smbc command](docs/screenshots/comic.png) |
+
 ## Commands
 
 ### 🎲 Fun & Games
