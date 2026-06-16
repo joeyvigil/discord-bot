@@ -6,6 +6,7 @@ and each one fails gracefully if the upstream API is unavailable.
 """
 
 import logging
+import secrets
 from urllib.parse import quote
 
 import aiohttp
@@ -152,8 +153,11 @@ class Api(commands.Cog):
     @app_commands.command(name="insult", description="Get a (playful) random insult.")
     async def insult(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer()
+        # evilinsult's CDN caches by URL and otherwise returns the same insult
+        # every time, so a throwaway nonce param forces a fresh one each call.
         data = await self._get_json(
-            "https://evilinsult.com/generate_insult.php?lang=en&type=json"
+            "https://evilinsult.com/generate_insult.php"
+            f"?lang=en&type=json&r={secrets.token_hex(6)}"
         )
         if not isinstance(data, dict) or "insult" not in data:
             await self._fail(interaction)
