@@ -1,8 +1,8 @@
 # joey-bot
 
 A friendly little Discord bot built with [discord.py](https://discordpy.readthedocs.io/)
-using slash commands. It brings games, randomizers, and fun API-powered toys to
-your server — no privileged intents required.
+using slash commands. It brings games, randomizers, handy utilities, and fun
+API-powered toys to your server — no privileged intents required.
 
 ## ➕ Add it to your server
 
@@ -12,7 +12,7 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 
 ## Commands
 
-### 🎮 Fun
+### 🎲 Fun & Games
 | Command | What it does |
 |---------|--------------|
 | `/8ball <question>` | Ask the magic 8-ball a yes/no question |
@@ -24,7 +24,15 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 | `/rate <thing>` | Get the bot's official rating of anything |
 | `/computa <command>` | Give the computa a command and it gets done |
 
-### 🌐 API-powered
+### 🕹️ Interactive
+| Command | What it does |
+|---------|--------------|
+| `/poll <question> <options>` | Create a live button poll (2–5 options) |
+| `/trivia` | Answer a multiple-choice trivia question |
+| `/tictactoe <opponent>` | Challenge someone to tic-tac-toe |
+| `/embed` | Build a custom embed from a form |
+
+### 🌐 Web & Lookups
 | Command | What it does |
 |---------|--------------|
 | `/joke` | A random joke |
@@ -32,6 +40,51 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 | `/meme` | A random meme from Reddit |
 | `/cat` | A random cat picture |
 | `/dog` | A random dog picture |
+| `/fox` | A random fox picture |
+| `/duck` | A random duck picture |
+| `/fact` | A random useless fact |
+| `/advice` | A random piece of advice |
+| `/quote` | An inspirational quote |
+| `/bored` | Something to do when you're bored |
+| `/insult` | A (playful) random insult |
+| `/weather <city>` | Current weather for a city |
+| `/define <word>` | Dictionary definition of a word |
+| `/pokemon <name>` | Look up a Pokémon's stats |
+| `/urban <term>` | Urban Dictionary lookup |
+
+### 🧰 Utility
+| Command | What it does |
+|---------|--------------|
+| `/avatar [user]` | Show a user's avatar |
+| `/userinfo [user]` | Show info about a user |
+| `/serverinfo` | Show info about this server |
+| `/membercount` | Show the server's member count |
+| `/snowflake <id>` | Decode the creation date of a Discord ID |
+| `/calc <expression>` | Evaluate a math expression |
+| `/convert <value> <from> <to>` | Convert units (length, mass, volume, temp) |
+| `/base <number> <from> <to>` | Convert a number between bases (2–36) |
+| `/random <min> <max>` | Pick a random number in a range |
+| `/percent <x> <y>` | What percent is X of Y |
+| `/tip <bill> [percent] [split]` | Calculate a tip and optional split |
+| `/url <mode> <text>` | URL-encode or decode text |
+| `/base64 <mode> <text>` | Encode or decode base64 |
+| `/morse <mode> <text>` | Translate to or from Morse code |
+| `/binary <mode> <text>` | Convert text to or from binary |
+| `/hash <algorithm> <text>` | Hash text (MD5, SHA-1/256/512) |
+| `/case <style> <text>` | Change the case of text |
+| `/reverse <text>` | Reverse a string |
+| `/wordcount <text>` | Count characters, words, and lines |
+| `/uuid` | Generate a random UUID |
+| `/password [length]` | Generate a secure random password |
+| `/qr <text>` | Generate a QR code |
+| `/colorinfo <hex>` | Show details for a hex color |
+| `/event <title> <when>` | Announce an event in everyone's local time |
+| `/timestamp [when]` | Generate Discord timestamp codes |
+| `/countdown <when>` | Show a live countdown to a time |
+| `/timein <offset>` | Current time at a UTC offset |
+| `/unixtime` | Show the current Unix timestamp |
+| `/remindme <when> <text>` | Get pinged after a delay |
+| `/say <text>` | Make the bot say something |
 
 ### ⚙️ General
 | Command | What it does |

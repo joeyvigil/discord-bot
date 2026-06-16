@@ -137,11 +137,24 @@ def _convert_base(number: str, from_base: int, to_base: int) -> str:
 _OFFSET_RE = re.compile(r"^[+-]?(?:\s*\d+\s*[smhd])+$", re.IGNORECASE)
 
 
-def _parse_when(text: str | None) -> datetime | None:
+def _parse_offset(text: str) -> int | None:
+    """Parse a UTC offset like '+5', '-8', or '+5:30' into total minutes."""
+    match = re.fullmatch(r"\s*([+-]?\d{1,2})(?::(\d{2}))?\s*", text)
+    if not match:
+        return None
+    hours = int(match.group(1))
+    minutes = int(match.group(2) or 0)
+    if not -12 <= hours <= 14:
+        return None
+    return hours * 60 + (minutes if hours >= 0 else -minutes)
+
+
+def _parse_when(text: str | None, offset_minutes: int = 0) -> datetime | None:
     """Parse a time spec into an aware UTC datetime, or None.
 
     Accepts: empty/"now"; an offset like "+2h"/"-30m"/"1h30m"; a Unix epoch
     in seconds; or an ISO date/time like "2026-06-16" or "2026-06-16 14:30".
+    A bare clock time is assumed to be in offset_minutes from UTC (default UTC).
     """
     text = (text or "").strip()
     if not text or text.lower() == "now":
@@ -161,7 +174,9 @@ def _parse_when(text: str | None) -> datetime | None:
         parsed = datetime.fromisoformat(text)
     except ValueError:
         return None
-    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+    if parsed.tzinfo:
+        return parsed
+    return parsed.replace(tzinfo=timezone(timedelta(minutes=offset_minutes)))
 
 
 class Utility(commands.Cog):
@@ -639,21 +654,14 @@ class Utility(commands.Cog):
     @app_commands.command(name="timein", description="Current time at a UTC offset.")
     @app_commands.describe(offset="UTC offset like +5, -8, or +5:30")
     async def timein(self, interaction: discord.Interaction, offset: str) -> None:
-        match = re.fullmatch(r"\s*([+-]?\d{1,2})(?::(\d{2}))?\s*", offset)
-        if not match:
+        total = _parse_offset(offset)
+        if total is None:
             await interaction.response.send_message(
-                "❌ Use an offset like `+5`, `-8`, or `+5:30`.", ephemeral=True
+                "❌ Use an offset like `+5`, `-8`, or `+5:30` (hours -12 to +14).",
+                ephemeral=True,
             )
             return
-        hours = int(match.group(1))
-        minutes = int(match.group(2) or 0)
-        if not -12 <= hours <= 14:
-            await interaction.response.send_message(
-                "❌ Offset hours must be between -12 and +14.", ephemeral=True
-            )
-            return
-        delta = timedelta(hours=hours, minutes=minutes if hours >= 0 else -minutes)
-        local = discord.utils.utcnow() + delta
+        local = discord.utils.utcnow() + timedelta(minutes=total)
         await interaction.response.send_message(
             f"🌍 Time at UTC{offset.strip()}: **{local:%H:%M}** ({local:%a %d %b})"
         )
@@ -673,6 +681,49 @@ class Utility(commands.Cog):
         await interaction.response.send_message(
             f"⏳ <t:{epoch}:F> — <t:{epoch}:R>"
         )
+
+    @app_commands.command(
+        name="event", description="Announce an event in everyone's local time."
+    )
+    @app_commands.describe(
+        title="What's happening",
+        when="now, +2h, a Unix time, or 2026-06-16 14:30",
+        utc_offset="If you gave a clock time, which UTC offset it's in (e.g. -5 or +5:30)",
+    )
+    async def event(
+        self,
+        interaction: discord.Interaction,
+        title: str,
+        when: str,
+        utc_offset: str = "",
+    ) -> None:
+        offset_minutes = 0
+        if utc_offset.strip():
+            parsed = _parse_offset(utc_offset)
+            if parsed is None:
+                await interaction.response.send_message(
+                    "❌ Use a UTC offset like `-5`, `+1`, or `+5:30`.", ephemeral=True
+                )
+                return
+            offset_minutes = parsed
+        moment = _parse_when(when, offset_minutes)
+        if moment is None:
+            await interaction.response.send_message(
+                "❌ Couldn't read that time. Try `+2h`, a Unix time, or "
+                "`2026-06-16 14:30`.",
+                ephemeral=True,
+            )
+            return
+        # A Discord timestamp renders in each viewer's own local time, so one
+        # announcement shows correctly for everyone — no per-user timezones.
+        epoch = int(moment.timestamp())
+        embed = discord.Embed(title=f"🗓️ {title}", color=discord.Color.blurple())
+        embed.add_field(name="When", value=f"<t:{epoch}:F>", inline=False)
+        embed.add_field(name="Starts", value=f"<t:{epoch}:R>", inline=False)
+        embed.set_footer(
+            text=f"Shown in your local time • posted by {interaction.user.display_name}"
+        )
+        await interaction.response.send_message(embed=embed)
 
     # --- Discord helpers -----------------------------------------------------
 
