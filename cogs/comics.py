@@ -65,13 +65,14 @@ class Comics(commands.Cog):
         )
 
     async def _latest_from_rss(
-        self, url: str, prefer: str | None = None
+        self, url: str, prefer: str | None = None, exclude: str | None = None
     ) -> tuple[str, str, str | None] | None:
         """Return (title, image_url, link) for the newest item in an RSS feed.
 
-        Images live in the item's (often HTML-escaped) body. ``prefer`` picks
-        the first image whose URL contains that substring — useful when a feed
-        also embeds layout/avatar images alongside the strip.
+        Images live in the item's (often HTML-escaped) body. ``prefer`` keeps
+        only images whose URL contains that substring, and ``exclude`` drops
+        any containing it — together they isolate the strip from layout,
+        avatar, or thumbnail images some feeds embed alongside it.
         """
         text = await self._get_text(url)
         if not text:
@@ -85,6 +86,8 @@ class Comics(commands.Cog):
         images = re.findall(r"<img[^>]*src=[\"']([^\"']+)", body)
         if prefer:
             images = [i for i in images if prefer in i] or images
+        if exclude:
+            images = [i for i in images if exclude not in i] or images
         if not images:
             return None
 
@@ -102,9 +105,10 @@ class Comics(commands.Cog):
         interaction: discord.Interaction,
         url: str,
         prefer: str | None = None,
+        exclude: str | None = None,
     ) -> None:
         await interaction.response.defer()
-        result = await self._latest_from_rss(url, prefer)
+        result = await self._latest_from_rss(url, prefer, exclude)
         if result is None:
             await self._fail(interaction)
             return
@@ -167,6 +171,46 @@ class Comics(commands.Cog):
     async def savagechickens(self, interaction: discord.Interaction) -> None:
         await self._send_rss(
             interaction, "https://www.savagechickens.com/feed", prefer="/uploads/"
+        )
+
+    @app_commands.command(
+        name="warandpeas", description="Get the latest War and Peas comic."
+    )
+    async def warandpeas(self, interaction: discord.Interaction) -> None:
+        await self._send_rss(
+            interaction, "https://warandpeas.com/feed/", prefer="/uploads/"
+        )
+
+    @app_commands.command(
+        name="pbf", description="Get the latest Perry Bible Fellowship comic."
+    )
+    async def pbf(self, interaction: discord.Interaction) -> None:
+        await self._send_rss(
+            interaction, "https://pbfcomics.com/feed/", prefer="/uploads/"
+        )
+
+    @app_commands.command(
+        name="buttersafe", description="Get the latest Buttersafe comic."
+    )
+    async def buttersafe(self, interaction: discord.Interaction) -> None:
+        await self._send_rss(
+            interaction, "https://www.buttersafe.com/feed/", prefer="/comics/"
+        )
+
+    @app_commands.command(name="exocomics", description="Get the latest Exocomics comic.")
+    async def exocomics(self, interaction: discord.Interaction) -> None:
+        await self._send_rss(interaction, "https://www.exocomics.com/feed")
+
+    @app_commands.command(
+        name="loadingartist", description="Get the latest Loading Artist comic."
+    )
+    async def loadingartist(self, interaction: discord.Interaction) -> None:
+        # The feed lists a small thumb first; skip it for the full-res strip.
+        await self._send_rss(
+            interaction,
+            "https://loadingartist.com/feed/",
+            prefer="/comic/",
+            exclude="thumb",
         )
 
 

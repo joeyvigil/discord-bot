@@ -76,6 +76,11 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 | `/dinosaur` | Latest Dinosaur Comics strip |
 | `/poorlydrawnlines` | Latest Poorly Drawn Lines comic |
 | `/savagechickens` | Latest Savage Chickens cartoon |
+| `/warandpeas` | Latest War and Peas comic |
+| `/pbf` | Latest Perry Bible Fellowship comic |
+| `/buttersafe` | Latest Buttersafe comic |
+| `/exocomics` | Latest Exocomics comic |
+| `/loadingartist` | Latest Loading Artist comic |
 
 ### 🧰 Utility
 | Command | What it does |
@@ -122,7 +127,7 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 |---------|--------------|
 | `/ping` | Check if the bot is alive and see its latency |
 | `/echo <message>` | Repeat back what you say |
-| `/help` | List every command the bot has |
+| `/help [category]` | Compact command overview, or one section in detail |
 
 ## Running your own
 
