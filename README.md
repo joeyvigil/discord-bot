@@ -32,6 +32,17 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 | `/tictactoe <opponent>` | Challenge someone to tic-tac-toe |
 | `/embed` | Build a custom embed from a form |
 
+### 🔤 Text
+| Command | What it does |
+|---------|--------------|
+| `/mock <text>` | sPoNgEbOb-cAsE some text |
+| `/clap <text>` | Put 👏 claps 👏 between words |
+| `/owoify <text>` | Twanslate text into owo-speak |
+| `/vaporwave <text>` | Convert text to ｆｕｌｌ-ｗｉｄｔｈ |
+| `/leet <text>` | Convert text to l33t speak |
+| `/emojify <text>` | Spell text with emoji letters |
+| `/ascii <text>` | Render text as a big ASCII banner |
+
 ### 🌐 Web & Lookups
 | Command | What it does |
 |---------|--------------|
@@ -51,6 +62,12 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 | `/define <word>` | Dictionary definition of a word |
 | `/pokemon <name>` | Look up a Pokémon's stats |
 | `/urban <term>` | Urban Dictionary lookup |
+| `/wiki <term>` | Get a Wikipedia summary |
+| `/github <owner/repo>` | Look up a GitHub repository |
+| `/npm <package>` | Look up an npm package |
+| `/crypto <coin>` | Get a cryptocurrency price |
+| `/xkcd [number]` | Get an xkcd comic |
+| `/translate <text> [to]` | Translate text to another language |
 
 ### 🧰 Utility
 | Command | What it does |
@@ -60,6 +77,12 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 | `/serverinfo` | Show info about this server |
 | `/membercount` | Show the server's member count |
 | `/snowflake <id>` | Decode the creation date of a Discord ID |
+| `/roleinfo <role>` | Show info about a role |
+| `/channelinfo [channel]` | Show info about a channel |
+| `/emojiinfo <emoji>` | Show info about a custom emoji |
+| `/servericon` | Show this server's icon |
+| `/banner [user]` | Show a user's profile banner |
+| `/firstmessage [channel]` | Link to the first message in a channel |
 | `/calc <expression>` | Evaluate a math expression |
 | `/convert <value> <from> <to>` | Convert units (length, mass, volume, temp) |
 | `/base <number> <from> <to>` | Convert a number between bases (2–36) |

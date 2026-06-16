@@ -781,6 +781,133 @@ class Utility(commands.Cog):
         embed.description = "The bar on the left shows the color."
         await interaction.response.send_message(embed=embed)
 
+    # --- Server & role info --------------------------------------------------
+
+    @app_commands.command(name="roleinfo", description="Show info about a role.")
+    @app_commands.describe(role="The role to inspect")
+    async def roleinfo(self, interaction: discord.Interaction, role: discord.Role) -> None:
+        embed = discord.Embed(title=f"🏷️ {role.name}", color=role.color)
+        embed.add_field(name="ID", value=role.id)
+        embed.add_field(name="Color", value=str(role.color))
+        embed.add_field(name="Position", value=role.position)
+        embed.add_field(name="Mentionable", value="Yes" if role.mentionable else "No")
+        embed.add_field(name="Hoisted", value="Yes" if role.hoist else "No")
+        embed.add_field(
+            name="Created", value=discord.utils.format_dt(role.created_at, "R")
+        )
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="channelinfo", description="Show info about a channel.")
+    @app_commands.describe(channel="The channel (defaults to this one)")
+    async def channelinfo(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel
+        | discord.VoiceChannel
+        | discord.CategoryChannel
+        | discord.Thread
+        | None = None,
+    ) -> None:
+        ch = channel or interaction.channel
+        if ch is None or isinstance(ch, discord.DMChannel):
+            await interaction.response.send_message(
+                "❌ This command only works on server channels.", ephemeral=True
+            )
+            return
+        embed = discord.Embed(title=f"#{ch.name}", color=discord.Color.blurple())
+        embed.add_field(name="ID", value=ch.id)
+        embed.add_field(name="Type", value=str(ch.type).replace("_", " ").title())
+        embed.add_field(
+            name="Created", value=discord.utils.format_dt(ch.created_at, "R")
+        )
+        category = getattr(ch, "category", None)
+        if category:
+            embed.add_field(name="Category", value=category.name)
+        topic = getattr(ch, "topic", None)
+        if topic:
+            embed.add_field(name="Topic", value=topic[:1000], inline=False)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="emojiinfo", description="Show info about a custom emoji.")
+    @app_commands.describe(emoji="A custom server emoji")
+    async def emojiinfo(self, interaction: discord.Interaction, emoji: str) -> None:
+        parsed = discord.PartialEmoji.from_str(emoji.strip())
+        if parsed.id is None:
+            await interaction.response.send_message(
+                "❌ That's a standard emoji — try a custom server emoji.",
+                ephemeral=True,
+            )
+            return
+        embed = discord.Embed(title=f":{parsed.name}:")
+        embed.add_field(name="ID", value=parsed.id)
+        embed.add_field(name="Animated", value="Yes" if parsed.animated else "No")
+        embed.add_field(
+            name="Created",
+            value=discord.utils.format_dt(
+                discord.utils.snowflake_time(parsed.id), "R"
+            ),
+        )
+        embed.set_thumbnail(url=parsed.url)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="servericon", description="Show this server's icon.")
+    async def servericon(self, interaction: discord.Interaction) -> None:
+        guild = interaction.guild
+        if guild is None or guild.icon is None:
+            await interaction.response.send_message(
+                "❌ This server has no icon.", ephemeral=True
+            )
+            return
+        embed = discord.Embed(title=f"{guild.name}'s icon")
+        embed.set_image(url=guild.icon.url)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="banner", description="Show a user's profile banner.")
+    @app_commands.describe(user="Whose banner to show (defaults to you)")
+    async def banner(
+        self, interaction: discord.Interaction, user: discord.User | None = None
+    ) -> None:
+        await interaction.response.defer()
+        target = user or interaction.user
+        # A member object doesn't carry the banner; fetch the full user.
+        fetched = await self.bot.fetch_user(target.id)
+        if fetched.banner is None:
+            await interaction.followup.send(
+                f"❌ {target.display_name} has no banner set."
+            )
+            return
+        embed = discord.Embed(title=f"{target.display_name}'s banner")
+        embed.set_image(url=fetched.banner.url)
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(
+        name="firstmessage", description="Link to the first message in a channel."
+    )
+    @app_commands.describe(channel="The channel (defaults to this one)")
+    async def firstmessage(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel | discord.Thread | None = None,
+    ) -> None:
+        await interaction.response.defer(ephemeral=True)
+        ch = channel or interaction.channel
+        if not isinstance(ch, (discord.TextChannel, discord.Thread)):
+            await interaction.followup.send("❌ Pick a text channel.")
+            return
+        try:
+            history = [m async for m in ch.history(limit=1, oldest_first=True)]
+        except discord.HTTPException:
+            await interaction.followup.send("❌ I can't read that channel's history.")
+            return
+        if not history:
+            await interaction.followup.send("❌ No messages found in that channel.")
+            return
+        first = history[0]
+        await interaction.followup.send(
+            f"📨 First message in {ch.mention} by **{first.author.display_name}** "
+            f"{discord.utils.format_dt(first.created_at, 'R')}:\n{first.jump_url}"
+        )
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Utility(bot))

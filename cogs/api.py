@@ -295,6 +295,148 @@ class Api(commands.Cog):
         )
         await interaction.followup.send(embed=embed)
 
+    @app_commands.command(name="wiki", description="Get a Wikipedia summary.")
+    @app_commands.describe(term="What to look up")
+    async def wiki(self, interaction: discord.Interaction, term: str) -> None:
+        await interaction.response.defer()
+        title = quote(term.strip().replace(" ", "_"))
+        data = await self._get_json(
+            f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
+        )
+        if not isinstance(data, dict) or not data.get("extract"):
+            await interaction.followup.send(
+                f"📚 No Wikipedia article found for **{term}**."
+            )
+            return
+        embed = discord.Embed(
+            title=data.get("title", term),
+            description=data["extract"][:1500],
+            url=data.get("content_urls", {}).get("desktop", {}).get("page"),
+        )
+        thumb = data.get("thumbnail", {}).get("source")
+        if thumb:
+            embed.set_thumbnail(url=thumb)
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="github", description="Look up a GitHub repository.")
+    @app_commands.describe(repo="owner/repo, e.g. python/cpython")
+    async def github(self, interaction: discord.Interaction, repo: str) -> None:
+        await interaction.response.defer()
+        slug = repo.strip().strip("/")
+        if slug.count("/") != 1:
+            await interaction.followup.send(
+                "❌ Use `owner/repo`, e.g. `python/cpython`."
+            )
+            return
+        data = await self._get_json(f"https://api.github.com/repos/{quote(slug)}")
+        if not isinstance(data, dict) or "full_name" not in data:
+            await interaction.followup.send(f"❓ Couldn't find repo **{slug}**.")
+            return
+        embed = discord.Embed(
+            title=data["full_name"],
+            description=data.get("description") or "",
+            url=data.get("html_url"),
+        )
+        embed.add_field(name="⭐ Stars", value=f"{data.get('stargazers_count', 0):,}")
+        embed.add_field(name="🍴 Forks", value=f"{data.get('forks_count', 0):,}")
+        embed.add_field(
+            name="🐛 Open issues", value=f"{data.get('open_issues_count', 0):,}"
+        )
+        if data.get("language"):
+            embed.add_field(name="Language", value=data["language"])
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="npm", description="Look up an npm package.")
+    @app_commands.describe(package="Package name, e.g. discord.js")
+    async def npm(self, interaction: discord.Interaction, package: str) -> None:
+        await interaction.response.defer()
+        name = package.strip()
+        data = await self._get_json(
+            f"https://registry.npmjs.org/{quote(name, safe='@/')}/latest"
+        )
+        if not isinstance(data, dict) or "name" not in data:
+            await interaction.followup.send(f"❓ Couldn't find npm package **{name}**.")
+            return
+        embed = discord.Embed(
+            title=f"📦 {data['name']} v{data.get('version', '?')}",
+            description=data.get("description") or "",
+            url=data.get("homepage") or f"https://www.npmjs.com/package/{name}",
+        )
+        license_ = data.get("license")
+        if isinstance(license_, dict):
+            license_ = license_.get("type")
+        if license_:
+            embed.add_field(name="License", value=str(license_))
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="crypto", description="Get a cryptocurrency price.")
+    @app_commands.describe(coin="Coin id, e.g. bitcoin, ethereum, dogecoin")
+    async def crypto(self, interaction: discord.Interaction, coin: str) -> None:
+        await interaction.response.defer()
+        cid = quote(coin.strip().lower())
+        data = await self._get_json(
+            "https://api.coingecko.com/api/v3/simple/price"
+            f"?ids={cid}&vs_currencies=usd&include_24hr_change=true"
+        )
+        if not isinstance(data, dict) or not data:
+            await interaction.followup.send(
+                f"❓ Couldn't find **{coin}** — try the full id, e.g. `bitcoin`."
+            )
+            return
+        key = next(iter(data))
+        info = data[key]
+        change = info.get("usd_24h_change") or 0
+        arrow = "📈" if change >= 0 else "📉"
+        await interaction.followup.send(
+            f"💰 **{key.title()}**: ${info.get('usd'):,} USD  "
+            f"{arrow} {change:+.2f}% (24h)"
+        )
+
+    @app_commands.command(name="xkcd", description="Get an xkcd comic.")
+    @app_commands.describe(number="Comic number (leave blank for the latest)")
+    async def xkcd(
+        self, interaction: discord.Interaction, number: int | None = None
+    ) -> None:
+        await interaction.response.defer()
+        url = (
+            f"https://xkcd.com/{number}/info.0.json"
+            if number
+            else "https://xkcd.com/info.0.json"
+        )
+        data = await self._get_json(url)
+        if not isinstance(data, dict) or "img" not in data:
+            await interaction.followup.send("❓ Couldn't find that comic.")
+            return
+        embed = discord.Embed(
+            title=f"#{data['num']}: {data['title']}",
+            url=f"https://xkcd.com/{data['num']}",
+        )
+        embed.set_image(url=data["img"])
+        if data.get("alt"):
+            embed.set_footer(text=data["alt"][:2000])
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="translate", description="Translate text to another language.")
+    @app_commands.describe(text="Text to translate", to="Target language code (default: en)")
+    async def translate(
+        self, interaction: discord.Interaction, text: str, to: str = "en"
+    ) -> None:
+        await interaction.response.defer()
+        target = quote(to.strip() or "en")
+        data = await self._get_json(
+            "https://translate.googleapis.com/translate_a/single"
+            f"?client=gtx&sl=auto&tl={target}&dt=t&q={quote(text)}"
+        )
+        if not isinstance(data, list) or not data or not data[0]:
+            await self._fail(interaction)
+            return
+        translated = "".join(chunk[0] for chunk in data[0] if chunk and chunk[0])
+        source = data[2] if len(data) > 2 else "auto"
+        embed = discord.Embed(title="🌐 Translation", color=discord.Color.blue())
+        embed.add_field(name=f"From ({source})", value=text[:1000], inline=False)
+        embed.add_field(name=f"To ({to})", value=translated[:1000], inline=False)
+        await interaction.followup.send(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Api(bot))
