@@ -12,6 +12,7 @@ COG_SECTIONS = {
     "Fun": "🎲 Fun & Games",
     "Interactive": "🕹️ Interactive",
     "Text": "🔤 Text",
+    "Comics": "📰 Comics",
     "Api": "🌐 Web & Lookups",
     "Utility": "🧰 Utility",
 }

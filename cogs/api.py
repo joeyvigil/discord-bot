@@ -392,30 +392,6 @@ class Api(commands.Cog):
             f"{arrow} {change:+.2f}% (24h)"
         )
 
-    @app_commands.command(name="xkcd", description="Get an xkcd comic.")
-    @app_commands.describe(number="Comic number (leave blank for the latest)")
-    async def xkcd(
-        self, interaction: discord.Interaction, number: int | None = None
-    ) -> None:
-        await interaction.response.defer()
-        url = (
-            f"https://xkcd.com/{number}/info.0.json"
-            if number
-            else "https://xkcd.com/info.0.json"
-        )
-        data = await self._get_json(url)
-        if not isinstance(data, dict) or "img" not in data:
-            await interaction.followup.send("❓ Couldn't find that comic.")
-            return
-        embed = discord.Embed(
-            title=f"#{data['num']}: {data['title']}",
-            url=f"https://xkcd.com/{data['num']}",
-        )
-        embed.set_image(url=data["img"])
-        if data.get("alt"):
-            embed.set_footer(text=data["alt"][:2000])
-        await interaction.followup.send(embed=embed)
-
     @app_commands.command(name="translate", description="Translate text to another language.")
     @app_commands.describe(text="Text to translate", to="Target language code (default: en)")
     async def translate(

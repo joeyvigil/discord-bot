@@ -66,8 +66,16 @@ Once it's in, type `/` in any channel to see everything it can do, or run `/help
 | `/github <owner/repo>` | Look up a GitHub repository |
 | `/npm <package>` | Look up an npm package |
 | `/crypto <coin>` | Get a cryptocurrency price |
-| `/xkcd [number]` | Get an xkcd comic |
 | `/translate <text> [to]` | Translate text to another language |
+
+### 📰 Comics
+| Command | What it does |
+|---------|--------------|
+| `/xkcd [number]` | Get an xkcd comic |
+| `/smbc` | Latest Saturday Morning Breakfast Cereal |
+| `/dinosaur` | Latest Dinosaur Comics strip |
+| `/poorlydrawnlines` | Latest Poorly Drawn Lines comic |
+| `/savagechickens` | Latest Savage Chickens cartoon |
 
 ### 🧰 Utility
 | Command | What it does |
